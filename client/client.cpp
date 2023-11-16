@@ -6,6 +6,62 @@
 #include <arpa/inet.h>
 #include <cstring>
 
+#include "structures.h"
+
+const int DATA_SIZE = 1024;
+const int MAX_DATA_SIZE=DATA_SIZE-sizeof(int)-sizeof(int);
+
+
+bool sendPacket(int socket, Packet &packet){
+    char data[DATA_SIZE];
+    memcpy(data, &packet.type, sizeof(packet.size));
+    memcpy(data+sizeof(packet.type), &packet.size, sizeof(packet.size));
+    if(packet.size>0)
+        memcpy(data+sizeof(packet.type)+sizeof(packet.size), packet.data,MAX_DATA_SIZE);
+    
+    int bytesSent = write(socket, data, DATA_SIZE);
+    if(bytesSent==-1)
+        return false;
+    return true;
+}
+
+bool receivePacket(int socket, Packet &packet){
+    char data[DATA_SIZE];
+    int readBytes = read(socket, data, DATA_SIZE);
+    if(readBytes>0){
+        int controlBytes = readBytes;
+        while(readBytes<DATA_SIZE && readBytes > 0){
+            readBytes+= read(socket,data+controlBytes,DATA_SIZE-controlBytes);
+            controlBytes = readBytes;
+        }
+
+        if(readBytes == DATA_SIZE){
+            memcpy(&packet.type, data, sizeof(packet.type));
+            memcpy(&packet.size, data + sizeof(packet.type), sizeof(packet.size));
+            if(packet.size>0){
+                packet.data = new char[MAX_DATA_SIZE];
+                memcpy(packet.data, data+sizeof(packet.type)+sizeof(packet.size),packet.size);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void deletePacket(Packet &packet){
+    if(packet.size>0)
+        delete[] packet.data;
+}
+
+
+
+void logIn(int socket){
+    Packet receivedPacket;
+    if(receivePacket(socket, receivedPacket)){
+        std::cout<<"Received: "<<receivedPacket.data<<std::endl;
+    }
+}
+
 int main(int argc, char ** argv) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -16,6 +72,8 @@ int main(int argc, char ** argv) {
 
     if (connect(sock, (struct sockaddr *)&serverAddress, sizeof(serverAddress)))
         error(1, errno, "Failed to connect");
+
+    logIn(sock);
 
     while (true) {
         char data[1024];

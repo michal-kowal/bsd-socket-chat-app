@@ -1,4 +1,5 @@
 #include "server.h"
+#include "structures.h"
 
 const int one = 1;
 
@@ -63,7 +64,7 @@ void Server::runServer(){
         std::cout << "Connection accepted from client." << std::endl;
 
         // Start a new thread to handle the client
-        std::thread clientThread(handleClient, ackSock);
+        std::thread clientThread(&Server::handleClient, this, ackSock);
         clientThread.detach();  // Allow the thread to run independently
 
     }
@@ -71,10 +72,63 @@ void Server::runServer(){
     close(servSock);
 }
 
+bool Server::sendPacket(int socket, Packet &packet){
+    char data[DATA_SIZE];
+    memcpy(data, &packet.type, sizeof(packet.size));
+    memcpy(data+sizeof(packet.type), &packet.size, sizeof(packet.size));
+    if(packet.size>0)
+        memcpy(data+sizeof(packet.type)+sizeof(packet.size), packet.data,MAX_DATA_SIZE);
+    
+    int bytesSent = write(socket, data, DATA_SIZE);
+    if(bytesSent==-1)
+        return false;
+    return true;
+}
+
+bool Server::receivePacket(int socket, Packet &packet){
+    char data[DATA_SIZE];
+    int readBytes = read(socket, data, DATA_SIZE);
+    if(readBytes>0){
+        int controlBytes = readBytes;
+        while(readBytes<DATA_SIZE && readBytes > 0){
+            readBytes+= read(socket,data+controlBytes,DATA_SIZE-controlBytes);
+            controlBytes = readBytes;
+        }
+
+        if(readBytes == DATA_SIZE){
+            memcpy(&packet.type, data, sizeof(packet.type));
+            memcpy(&packet.size, data + sizeof(packet.type), sizeof(packet.size));
+            if(packet.size>0){
+                packet.data = new char[MAX_DATA_SIZE];
+                memcpy(packet.data, data+sizeof(packet.type)+sizeof(packet.size),packet.size);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+void Server::deletePacket(Packet &packet){
+    if(packet.size>0)
+            delete[] packet.data;
+}
+
+void Server::logInUser(int clientSocket){
+    std::cout<<"Logowanie\n";
+    Packet packet, receivedPacket;
+    std::string test = "testowa wiadomosc";
+    packet.type=P_LOGIN_USER;
+    packet.data=const_cast<char*>(test.c_str());
+    packet.size = sizeof(test.length());
+    if(sendPacket(clientSocket, packet)) std::cout<<"packet sent\n";
+}
+
 void Server::handleClient(int clientSocket) {
     const int bufferSize = 1024;
     char buffer[bufferSize];
     
+    logInUser(clientSocket);
+
     while (true) {
         int bytesRead = read(clientSocket, buffer, sizeof(buffer) - 1);
         if (bytesRead <= 0) {
@@ -92,8 +146,8 @@ void Server::handleClient(int clientSocket) {
         // Echo the data back to the client
         write(clientSocket, buffer, bytesRead);
     }
-
     close(clientSocket);
+    pthread_exit(NULL);
 }
 
 int main(int argc, char ** argv) {
