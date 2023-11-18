@@ -13,6 +13,7 @@
 #include <vector>
 #include <sqlite3.h>
 #include <stdexcept>
+#include <sstream>
 
 #include "structures.h"
 
@@ -23,6 +24,7 @@ public:
     void runServer();
     void handleClient(int clientSocket);
     void createUsersTable();
+    bool checkUserInDb(std::string login);
     void logInUser(int clientSocket);
     bool sendPacket(int socket, Packet &packet);
     bool receivePacket(int socket, Packet &packet);

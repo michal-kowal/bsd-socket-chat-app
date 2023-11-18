@@ -1,8 +1,11 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
+#include <iostream>
+
 enum packetType{
     P_LOGIN_USER,
+    P_ASK_LOGIN_USER,
     P_REGISTER_USER
 };
 

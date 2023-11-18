@@ -3,19 +3,6 @@
 
 const int one = 1;
 
-void Server::createUsersTable(){
-    std::string sql = 
-    "CREATE TABLE IF NOT EXISTS USER("
-    "USERNAME TEXT PRIMARY KEY NOT NULL, "
-    "STATUS INT NOT NULL)";
-    char *messageError;
-    if(sqlite3_exec(DB, sql.c_str(), NULL, 0, &messageError)!= SQLITE_OK){
-        std::cerr<<"Error Create Table"<<std::endl;
-        sqlite3_free(messageError);
-    }
-    else
-        std::cout<<"Table created successfully"<<std::endl;
-}
 
 Server::Server(int p){
     port = p;
@@ -105,12 +92,21 @@ bool Server::receivePacket(int socket, Packet &packet){
             return true;
         }
     }
+    if (readBytes <= 0) {
+            // Error or connection closed by client
+            if (readBytes == 0) {
+                std::cout << "Connection closed by client." << std::endl;
+            } else {
+                std::cerr << "Error reading from client." << std::endl;
+            }
+            return false;
+        }
     return false;
 }
 
 void Server::deletePacket(Packet &packet){
     if(packet.size>0)
-            delete[] packet.data;
+        delete[] packet.data;
 }
 
 void Server::logInUser(int clientSocket){
@@ -121,30 +117,22 @@ void Server::logInUser(int clientSocket){
     packet.data=const_cast<char*>(test.c_str());
     packet.size = sizeof(test.length());
     if(sendPacket(clientSocket, packet)) std::cout<<"packet sent\n";
+    // deletePacket(packet);
 }
 
 void Server::handleClient(int clientSocket) {
-    const int bufferSize = 1024;
-    char buffer[bufferSize];
-    
     logInUser(clientSocket);
-
+    
     while (true) {
-        int bytesRead = read(clientSocket, buffer, sizeof(buffer) - 1);
-        if (bytesRead <= 0) {
-            // Error or connection closed by client
-            if (bytesRead == 0) {
-                std::cout << "Connection closed by client." << std::endl;
-            } else {
-                std::cerr << "Error reading from client." << std::endl;
-            }
-            break;
-        }
+        Packet packet;
+        bool received = receivePacket(clientSocket, packet);
+        if(!received) break;
 
-        buffer[bytesRead] = '\0';  // Null-terminate the received data
-        std::cout << "Received from client: " << buffer << " fd: " << clientSocket << std::endl;
-        // Echo the data back to the client
-        write(clientSocket, buffer, bytesRead);
+        if(packet.type==P_ASK_LOGIN_USER){
+            std::string login = packet.data;
+            if(!checkUserInDb(login)) std::cout<<"nie istnieje\n"<<std::endl;
+            deletePacket(packet);
+        }
     }
     close(clientSocket);
     pthread_exit(NULL);
