@@ -7,7 +7,7 @@ const int one = 1;
 Server::Server(int p){
     port = p;
     int exit = 0;
-    exit = sqlite3_open("chat.db", &DB);
+    exit = sqlite3_open("../chat.db", &DB);
 
     if(exit){
         std::cerr<<"Error open DB"<<sqlite3_errmsg(DB)<<std::endl;
@@ -59,58 +59,7 @@ void Server::runServer(){
     close(servSock);
 }
 
-bool Server::sendPacket(int socket, Packet &packet){
-    char data[DATA_SIZE];
-    memcpy(data, &packet.type, sizeof(packet.size));
-    memcpy(data+sizeof(packet.type), &packet.size, sizeof(packet.size));
-    if(packet.size>0)
-        memcpy(data+sizeof(packet.type)+sizeof(packet.size), packet.data,MAX_DATA_SIZE);
-    
-    int bytesSent = write(socket, data, DATA_SIZE);
-    if(bytesSent==-1)
-        return false;
-    return true;
-}
-
-bool Server::receivePacket(int socket, Packet &packet){
-    char data[DATA_SIZE];
-    int readBytes = read(socket, data, DATA_SIZE);
-    if(readBytes>0){
-        int controlBytes = readBytes;
-        while(readBytes<DATA_SIZE && readBytes > 0){
-            readBytes+= read(socket,data+controlBytes,DATA_SIZE-controlBytes);
-            controlBytes = readBytes;
-        }
-
-        if(readBytes == DATA_SIZE){
-            memcpy(&packet.type, data, sizeof(packet.type));
-            memcpy(&packet.size, data + sizeof(packet.type), sizeof(packet.size));
-            if(packet.size>0){
-                packet.data = new char[MAX_DATA_SIZE];
-                memcpy(packet.data, data+sizeof(packet.type)+sizeof(packet.size),packet.size);
-            }
-            return true;
-        }
-    }
-    if (readBytes <= 0) {
-            // Error or connection closed by client
-            if (readBytes == 0) {
-                std::cout << "Connection closed by client." << std::endl;
-            } else {
-                std::cerr << "Error reading from client." << std::endl;
-            }
-            return false;
-        }
-    return false;
-}
-
-void Server::deletePacket(Packet &packet){
-    if(packet.size>0)
-        delete[] packet.data;
-}
-
 void Server::logInUser(int clientSocket){
-    std::cout<<"Logowanie\n";
     Packet packet, receivedPacket;
     std::string test = "testowa wiadomosc";
     packet.type=P_LOGIN_USER;
@@ -120,18 +69,61 @@ void Server::logInUser(int clientSocket){
     // deletePacket(packet);
 }
 
+void Server::sendUserNotExist(int clientSocket){
+    Packet packet;
+    packet.type=P_USER_NOT_EXIST;
+    packet.size=0;
+    if(!sendPacket(clientSocket, packet)) std::cout<<"error sending packet\n";
+}
+
+void Server::sendUserExist(int clientSocket){
+    Packet packet;
+    packet.type=P_USER_EXIST;
+    packet.size=0;
+    if(!sendPacket(clientSocket, packet)) std::cout<<"error sending P_USER_EXIST\n";
+}
+
 void Server::handleClient(int clientSocket) {
     logInUser(clientSocket);
     
+    Client newClient;
+
     while (true) {
-        Packet packet;
-        bool received = receivePacket(clientSocket, packet);
+        Packet receivedPacket;
+        bool received = receivePacket(clientSocket, receivedPacket);
         if(!received) break;
 
-        if(packet.type==P_ASK_LOGIN_USER){
-            std::string login = packet.data;
-            if(!checkUserInDb(login)) std::cout<<"nie istnieje\n"<<std::endl;
-            deletePacket(packet);
+        if(receivedPacket.type==P_ASK_LOGIN_USER){
+            std::string login = receivedPacket.data;
+            if(!checkUserInDb(login)){
+                std::cout<<"nie istnieje\n"<<std::endl;
+                sendUserNotExist(clientSocket);
+            }else{
+                sendUserExist(clientSocket);
+            }
+            deletePacket(receivedPacket);
+        }
+        if(receivedPacket.type==P_SEND_LOGIN){
+            std::string login = receivedPacket.data;
+            newClient.username = login;
+            deletePacket(receivedPacket);
+        }
+        if(receivedPacket.type==P_SEND_PASSWORD){
+            std::string password = receivedPacket.data;
+            newClient.fd = clientSocket;
+            newClient.password = password;
+            insertUserToDb(newClient.username, newClient.password);
+            clients.push_back(newClient);
+            deletePacket(receivedPacket);
+        }
+        if(receivedPacket.type==P_SEND_LOGIN_LOG){
+            std::string login = receivedPacket.data;
+            deletePacket(receivedPacket);
+        }
+        if(receivedPacket.type==P_SEND_PASSWORD_LOG){
+            std::string password = receivedPacket.data;
+            insertUserToDb(newClient.username, newClient.password);
+            deletePacket(receivedPacket);
         }
     }
     close(clientSocket);

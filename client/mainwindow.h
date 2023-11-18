@@ -28,10 +28,18 @@ private slots:
 
 protected:
     QTcpSocket * socket {nullptr};
+    bool loginExists;
+    bool password;
     void connection();
     void socketConnected();
     void receivePacket();
+    void checkLoginUser();
+    void signUpUser();
     void loginUser();
+    void sendLogin(QString login);
+    void sendPassword(QString password);
+    void sendLoginToLogin(QString login);
+    void sendPasswordToLogin(QString password);
 private:
     Ui::MainWindow *ui;
 };

@@ -4,7 +4,12 @@
 enum packetType{
     P_LOGIN_USER,
     P_ASK_LOGIN_USER,
-    P_REGISTER_USER
+    P_USER_NOT_EXIST,
+    P_USER_EXIST,
+    P_SEND_LOGIN,
+    P_SEND_PASSWORD,
+    P_SEND_LOGIN_LOG,
+    P_SEND_PASSWORD_LOG
 };
 
 struct Packet{

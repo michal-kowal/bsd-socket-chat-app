@@ -14,6 +14,7 @@
 #include <sqlite3.h>
 #include <stdexcept>
 #include <sstream>
+#include <mutex>
 
 #include "structures.h"
 
@@ -21,11 +22,18 @@ class Server{
 public:
     Server(int p);
     ~Server();
+
     void runServer();
     void handleClient(int clientSocket);
+
     void createUsersTable();
     bool checkUserInDb(std::string login);
+
     void logInUser(int clientSocket);
+    void sendUserNotExist(int clientSocket);
+    void sendUserExist(int clientSocket);
+    void insertUserToDb(std::string username, std::string password);
+
     bool sendPacket(int socket, Packet &packet);
     bool receivePacket(int socket, Packet &packet);
     void deletePacket(Packet &packet);
@@ -36,6 +44,8 @@ private:
     const int MAX_EVENTS = 10;
     sqlite3* DB;
     std::vector<Client> clients;
+
+    std::mutex mutex;
 };
 
 #endif

@@ -4,7 +4,7 @@ project(MyServer)
 set(CMAKE_CXX_STANDARD 11)
 
 # Utwórz plik wykonywalny
-add_executable(server server.cpp handleDB.cpp)
+add_executable(server server.cpp handleDB.cpp handlePacket.cpp)
 
 # Dodaj bibliotekę pthread
 set(THREADS_PREFER_PTHREAD_FLAG ON)

@@ -5,6 +5,7 @@ void Server::createUsersTable(){
     std::string sql = 
     "CREATE TABLE IF NOT EXISTS USER("
     "USERNAME TEXT PRIMARY KEY NOT NULL, "
+    "PASSWORD TEXT NOT NULL,"
     "STATUS INT NOT NULL)";
     char *messageError;
     if(sqlite3_exec(DB, sql.c_str(), NULL, 0, &messageError)!= SQLITE_OK){
@@ -15,7 +16,24 @@ void Server::createUsersTable(){
         std::cout<<"Table created successfully"<<std::endl;
 }
 
+void Server::insertUserToDb(std::string username, std::string password) {
+    std::lock_guard<std::mutex> lock(mutex);
+
+    std::stringstream query;
+    query << "INSERT INTO USER (USERNAME, PASSWORD, STATUS) VALUES ('"
+          << username << "', '" << password << "', " << 1 << ")";
+
+    char *messageError;
+    if (sqlite3_exec(DB, query.str().c_str(), NULL, 0, &messageError) != SQLITE_OK) {
+        std::cerr << "Error inserting user into database: " << messageError << std::endl;
+        sqlite3_free(messageError);
+    } else {
+        std::cout << "User" <<username<<" inserted successfully" << std::endl;
+    }
+}
+
 bool Server::checkUserInDb(std::string login){
+    std::lock_guard<std::mutex> lock(mutex);
     std::stringstream query;
     query << "SELECT COUNT(*) FROM USER WHERE USERNAME='" << login << "'";
 
