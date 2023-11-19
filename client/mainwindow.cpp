@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     loginExists = false;
     password = false;
+    status = false;
 
     connect(ui->connectButton, &QPushButton::clicked, this, &MainWindow::connection);
     connect(ui->logInButton, &QPushButton::clicked, this, &MainWindow::loginUser);
@@ -18,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if(socket) socket->close();
+    if(status) logOutUser();
     delete ui;
 }
 
@@ -39,6 +42,7 @@ void MainWindow::receivePacket(){
                 chooseProcedure();
             }
             if(packet.type == P_SIGNUP_SUCCES){
+                status = true;
                 loginExists = true;
                 password = true;
                 ui->infoBox->setText("Signed up and logged in succesfully.");
@@ -50,6 +54,7 @@ void MainWindow::receivePacket(){
                 ui->infoBox->setText("User already logged in.");
             }
             if(packet.type == P_LOGIN_SUCCES){
+                status = true;
                 loginExists = true;
                 password = true;
                 ui->infoBox->setText("Logged in succesfully.");
@@ -61,6 +66,7 @@ void MainWindow::receivePacket(){
                 ui->infoBox->setText("Wrong password. Try again.");
             }
             if(packet.type == P_LOGOUT_CONFIRM){
+                status = false;
                 loginExists = false;
                 password = false;
                 ui->infoBox->setText("Logged out.");

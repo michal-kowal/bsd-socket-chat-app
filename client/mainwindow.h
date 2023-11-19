@@ -31,6 +31,7 @@ protected:
     bool loginExists;
     bool password;
     int decide; //0-signup 1-login
+    bool status;
     void connection();
     void changeLoginSection(bool val);
     void socketConnected();

@@ -6,7 +6,6 @@ void MainWindow::logOutUser(){
     packet.type = P_LOGOUT_REQUEST;
     packet.size = 0;
     sendData(*socket, packet);
-    delete(packet);
 }
 
 void MainWindow::checkLoginUser(){
