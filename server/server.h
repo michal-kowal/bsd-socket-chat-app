@@ -36,6 +36,8 @@ public:
     void sendPacketUni(int clientSocket, enum packetType type);
     void insertUserToDb(std::string username, std::string password);
 
+    std::string modifyClientsVector(int socket);
+
     bool sendPacket(int socket, Packet &packet);
     bool receivePacket(int socket, Packet &packet);
     void deletePacket(Packet &packet);
@@ -48,6 +50,7 @@ private:
     std::vector<Client> clients;
 
     std::mutex mutex;
+    std::mutex vectorMutex;
 };
 
 #endif

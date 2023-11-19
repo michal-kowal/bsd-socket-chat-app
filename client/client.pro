@@ -11,6 +11,7 @@ CONFIG += c++17
 
 SOURCES += \
     dataHandler.cpp \
+    loginHandler.cpp \
     main.cpp \
     mainwindow.cpp
 

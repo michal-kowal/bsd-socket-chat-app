@@ -13,84 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->connectButton, &QPushButton::clicked, this, &MainWindow::connection);
     connect(ui->logInButton, &QPushButton::clicked, this, &MainWindow::loginUser);
     connect(ui->signUpButton, &QPushButton::clicked, this, &MainWindow::signUpUser);
+    connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::logOutUser);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-void MainWindow::checkLoginUser(){
-    Packet packet;
-    QString login = ui->loginLineEdit->text();
-    packet.type = P_ASK_LOGIN_USER;
-    packet.size = login.length();
-    packet.data = const_cast<char*>(login.toStdString().c_str());
-    sendData(*socket, packet);
-}
-
-void MainWindow::sendLogin(QString login){
-    Packet packet;
-    packet.type = P_SEND_LOGIN;
-    packet.size = login.length();
-    packet.data = const_cast<char*>(login.toStdString().c_str());
-    sendData(*socket, packet);
-}
-
-void MainWindow::sendPassword(QString password){
-    Packet packet;
-    packet.type = P_SEND_PASSWORD;
-    packet.size = password.length();
-    packet.data = const_cast<char*>(password.toStdString().c_str());
-    sendData(*socket, packet);
-}
-
-void MainWindow::signUpUser(){
-    QString login = ui->loginLineEdit->text();
-    QString password = ui->passwordLineEdit->text();
-    checkLoginUser();
-    if(login.length()!=0 && password.length()!=0 && !loginExists){
-        sendLogin(login);
-        sendPassword(password);
-    }else if (loginExists){
-        ui->infoBox->setText("User already exists.");
-    }
-}
-
-void MainWindow::sendLoginToLogin(QString login){
-    Packet packet;
-    packet.type = P_SEND_LOGIN_LOG;
-    packet.size = login.length();
-    packet.data = const_cast<char*>(login.toStdString().c_str());
-    sendData(*socket, packet);
-}
-
-void MainWindow::sendPasswordToLogin(QString password){
-    Packet packet;
-    packet.type = P_SEND_PASSWORD_LOG;
-    packet.size = password.length();
-    packet.data = const_cast<char*>(password.toStdString().c_str());
-    sendData(*socket, packet);
-}
-
-void MainWindow::loginUser(){
-    QString login = ui->loginLineEdit->text();
-    QString password = ui->passwordLineEdit->text();
-    checkLoginUser();
-    if(login.length()!=0 && password.length()!=0 && loginExists){
-        sendLoginToLogin(login);
-        sendPasswordToLogin(password);
-    }else{
-        ui->infoBox->setText("User doesn't exist.");
-    }
-}
-
-void MainWindow::changeLoginSection(bool val){
-    ui->loginLineEdit->setEnabled(val);
-    ui->passwordLineEdit->setEnabled(val);
-    ui->logInButton->setEnabled(val);
-    ui->signUpButton->setEnabled(val);
-    ui->logoutButton->setEnabled(!val);
 }
 
 void MainWindow::receivePacket(){
@@ -104,9 +32,11 @@ void MainWindow::receivePacket(){
             }
             if(packet.type == P_USER_NOT_EXIST){
                 loginExists = false;
+                chooseProcedure();
             }
             if(packet.type == P_USER_EXIST){
                 loginExists = true;
+                chooseProcedure();
             }
             if(packet.type == P_SIGNUP_SUCCES){
                 loginExists = true;
@@ -129,6 +59,12 @@ void MainWindow::receivePacket(){
                 loginExists = true;
                 password = false;
                 ui->infoBox->setText("Wrong password. Try again.");
+            }
+            if(packet.type == P_LOGOUT_CONFIRM){
+                loginExists = false;
+                password = false;
+                ui->infoBox->setText("Logged out.");
+                changeLoginSection(true);
             }
             receivedData.remove(0, 1024);
         }

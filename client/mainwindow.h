@@ -30,13 +30,18 @@ protected:
     QTcpSocket * socket {nullptr};
     bool loginExists;
     bool password;
+    int decide; //0-signup 1-login
     void connection();
     void changeLoginSection(bool val);
     void socketConnected();
     void receivePacket();
     void checkLoginUser();
+    void chooseProcedure();
+    void signUpProcedure();
+    void logInProcedure();
     void signUpUser();
     void loginUser();
+    void logOutUser();
     void sendLogin(QString login);
     void sendPassword(QString password);
     void sendLoginToLogin(QString login);

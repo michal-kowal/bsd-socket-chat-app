@@ -76,6 +76,18 @@ void Server::sendPacketUni(int clientSocket, enum packetType type){
     if(!sendPacket(clientSocket, packet)) std::cout<<"error sending packet\n";
 }
 
+std::string Server::modifyClientsVector(int socket){
+    std::string name;
+    for(int i = 0; i < clients.size(); i++){
+        if(clients[i].fd==socket){
+            name = clients[i].username;
+            clients.erase(clients.begin() + i);
+            break;
+        }
+    }
+    return name;
+}
+
 void Server::handleClient(int clientSocket) {
     logInUser(clientSocket);
     
@@ -106,6 +118,7 @@ void Server::handleClient(int clientSocket) {
             newClient.fd = clientSocket;
             newClient.password = password;
             insertUserToDb(newClient.username, newClient.password);
+            std::lock_guard<std::mutex> lock(vectorMutex);
             clients.push_back(newClient);
             sendPacketUni(clientSocket, P_SIGNUP_SUCCES);
             deletePacket(receivedPacket);
@@ -126,12 +139,18 @@ void Server::handleClient(int clientSocket) {
                 if(checkUserPassword(newClient.username, newClient.password)){
                     updateUserStatus(newClient.username, 1);
                     sendPacketUni(clientSocket, P_LOGIN_SUCCES);
+                    std::lock_guard<std::mutex> lock(vectorMutex);
                     clients.push_back(newClient);
                 }else{
                     sendPacketUni(clientSocket, P_WRONG_PASSWORD);
                 }
             }
             deletePacket(receivedPacket);
+        }
+        if(receivedPacket.type==P_LOGOUT_REQUEST){
+            std::string username = modifyClientsVector(clientSocket);
+            updateUserStatus(username, 0);
+            sendPacketUni(clientSocket, P_LOGOUT_CONFIRM);
         }
     }
     close(clientSocket);
