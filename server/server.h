@@ -28,10 +28,12 @@ public:
 
     void createUsersTable();
     bool checkUserInDb(std::string login);
+    bool checkUserLoggedIn(std::string login, int status);
+    bool checkUserPassword(std::string login, std::string password);
+    void updateUserStatus(std::string username, int newStatus);
 
     void logInUser(int clientSocket);
-    void sendUserNotExist(int clientSocket);
-    void sendUserExist(int clientSocket);
+    void sendPacketUni(int clientSocket, enum packetType type);
     void insertUserToDb(std::string username, std::string password);
 
     bool sendPacket(int socket, Packet &packet);

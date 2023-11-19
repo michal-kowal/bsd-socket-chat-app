@@ -56,3 +56,68 @@ bool Server::checkUserInDb(std::string login){
     if (userCount > 0) return true;
     else return false;
 }
+
+bool Server::checkUserLoggedIn(std::string login, int status){
+    std::lock_guard<std::mutex> lock(mutex);
+    std::stringstream query;
+    query << "SELECT COUNT(*) FROM USER WHERE STATUS="<<status<<" AND USERNAME='" << login << "'";
+
+    sqlite3_stmt *statement;
+    if (sqlite3_prepare_v2(DB, query.str().c_str(), -1, &statement, nullptr) != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(DB) << std::endl;
+        return false;
+    }
+
+    if (sqlite3_step(statement) != SQLITE_ROW) {
+        std::cerr << "Error executing SQL statement: " << sqlite3_errmsg(DB) << std::endl;
+        sqlite3_finalize(statement);
+        return false;
+    }
+
+    int userCount = sqlite3_column_int(statement, 0);
+
+    sqlite3_finalize(statement);
+
+    if (userCount > 0) return true;
+    else return false;
+}
+
+bool Server::checkUserPassword(std::string login, std::string password){
+    std::lock_guard<std::mutex> lock(mutex);
+    std::stringstream query;
+    query << "SELECT COUNT(*) FROM USER WHERE PASSWORD='"<<password<<"' AND USERNAME='" << login << "'";
+
+    sqlite3_stmt *statement;
+    if (sqlite3_prepare_v2(DB, query.str().c_str(), -1, &statement, nullptr) != SQLITE_OK) {
+        std::cerr << "Error preparing SQL statement: " << sqlite3_errmsg(DB) << std::endl;
+        return false;
+    }
+
+    if (sqlite3_step(statement) != SQLITE_ROW) {
+        std::cerr << "Error executing SQL statement: " << sqlite3_errmsg(DB) << std::endl;
+        sqlite3_finalize(statement);
+        return false;
+    }
+
+    int userCount = sqlite3_column_int(statement, 0);
+
+    sqlite3_finalize(statement);
+
+    if (userCount > 0) return true;
+    else return false;
+}
+
+void Server::updateUserStatus(std::string username, int newStatus) {
+    std::lock_guard<std::mutex> lock(mutex);
+
+    std::stringstream query;
+    query << "UPDATE USER SET STATUS=" << newStatus << " WHERE USERNAME='" << username << "'";
+
+    char *messageError;
+    if (sqlite3_exec(DB, query.str().c_str(), NULL, 0, &messageError) != SQLITE_OK) {
+        std::cerr << "Error updating user status in database: " << messageError << std::endl;
+        sqlite3_free(messageError);
+    } else {
+        std::cout << "User status updated successfully" << std::endl;
+    }
+}

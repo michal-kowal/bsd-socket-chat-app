@@ -52,7 +52,7 @@ void MainWindow::signUpUser(){
     if(login.length()!=0 && password.length()!=0 && !loginExists){
         sendLogin(login);
         sendPassword(password);
-    }else{
+    }else if (loginExists){
         ui->infoBox->setText("User already exists.");
     }
 }
@@ -85,6 +85,14 @@ void MainWindow::loginUser(){
     }
 }
 
+void MainWindow::changeLoginSection(bool val){
+    ui->loginLineEdit->setEnabled(val);
+    ui->passwordLineEdit->setEnabled(val);
+    ui->logInButton->setEnabled(val);
+    ui->signUpButton->setEnabled(val);
+    ui->logoutButton->setEnabled(!val);
+}
+
 void MainWindow::receivePacket(){
     QByteArray receivedData;
     Packet packet;
@@ -99,6 +107,28 @@ void MainWindow::receivePacket(){
             }
             if(packet.type == P_USER_EXIST){
                 loginExists = true;
+            }
+            if(packet.type == P_SIGNUP_SUCCES){
+                loginExists = true;
+                password = true;
+                ui->infoBox->setText("Signed up and logged in succesfully.");
+                changeLoginSection(false);
+            }
+            if(packet.type == P_USER_ALREADY_LOGGED_IN){
+                loginExists = false;
+                password = false;
+                ui->infoBox->setText("User already logged in.");
+            }
+            if(packet.type == P_LOGIN_SUCCES){
+                loginExists = true;
+                password = true;
+                ui->infoBox->setText("Logged in succesfully.");
+                changeLoginSection(false);
+            }
+            if(packet.type == P_WRONG_PASSWORD){
+                loginExists = true;
+                password = false;
+                ui->infoBox->setText("Wrong password. Try again.");
             }
             receivedData.remove(0, 1024);
         }

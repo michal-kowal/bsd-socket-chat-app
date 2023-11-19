@@ -65,22 +65,15 @@ void Server::logInUser(int clientSocket){
     packet.type=P_LOGIN_USER;
     packet.data=const_cast<char*>(test.c_str());
     packet.size = sizeof(test.length());
-    if(sendPacket(clientSocket, packet)) std::cout<<"packet sent\n";
+    if(!sendPacket(clientSocket, packet)) std::cout<<"error sending packet P_LOGIN_USER\n";
     // deletePacket(packet);
 }
 
-void Server::sendUserNotExist(int clientSocket){
+void Server::sendPacketUni(int clientSocket, enum packetType type){
     Packet packet;
-    packet.type=P_USER_NOT_EXIST;
+    packet.type=type;
     packet.size=0;
     if(!sendPacket(clientSocket, packet)) std::cout<<"error sending packet\n";
-}
-
-void Server::sendUserExist(int clientSocket){
-    Packet packet;
-    packet.type=P_USER_EXIST;
-    packet.size=0;
-    if(!sendPacket(clientSocket, packet)) std::cout<<"error sending P_USER_EXIST\n";
 }
 
 void Server::handleClient(int clientSocket) {
@@ -97,9 +90,9 @@ void Server::handleClient(int clientSocket) {
             std::string login = receivedPacket.data;
             if(!checkUserInDb(login)){
                 std::cout<<"nie istnieje\n"<<std::endl;
-                sendUserNotExist(clientSocket);
+                sendPacketUni(clientSocket, P_USER_NOT_EXIST);
             }else{
-                sendUserExist(clientSocket);
+                sendPacketUni(clientSocket, P_USER_EXIST);
             }
             deletePacket(receivedPacket);
         }
@@ -114,15 +107,30 @@ void Server::handleClient(int clientSocket) {
             newClient.password = password;
             insertUserToDb(newClient.username, newClient.password);
             clients.push_back(newClient);
+            sendPacketUni(clientSocket, P_SIGNUP_SUCCES);
             deletePacket(receivedPacket);
         }
         if(receivedPacket.type==P_SEND_LOGIN_LOG){
             std::string login = receivedPacket.data;
+            newClient.fd = clientSocket;
+            newClient.username = login;
             deletePacket(receivedPacket);
         }
         if(receivedPacket.type==P_SEND_PASSWORD_LOG){
             std::string password = receivedPacket.data;
-            insertUserToDb(newClient.username, newClient.password);
+            newClient.password = password;
+            bool status = checkUserLoggedIn(newClient.username, 1);
+            if(status){
+                sendPacketUni(clientSocket, P_USER_ALREADY_LOGGED_IN);   
+            }else{
+                if(checkUserPassword(newClient.username, newClient.password)){
+                    updateUserStatus(newClient.username, 1);
+                    sendPacketUni(clientSocket, P_LOGIN_SUCCES);
+                    clients.push_back(newClient);
+                }else{
+                    sendPacketUni(clientSocket, P_WRONG_PASSWORD);
+                }
+            }
             deletePacket(receivedPacket);
         }
     }

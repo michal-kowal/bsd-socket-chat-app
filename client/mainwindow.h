@@ -31,6 +31,7 @@ protected:
     bool loginExists;
     bool password;
     void connection();
+    void changeLoginSection(bool val);
     void socketConnected();
     void receivePacket();
     void checkLoginUser();
