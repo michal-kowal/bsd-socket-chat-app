@@ -13,7 +13,8 @@ SOURCES += \
     dataHandler.cpp \
     loginHandler.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    usersHandler.cpp
 
 HEADERS += \
     dataHandler.h \

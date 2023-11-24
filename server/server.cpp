@@ -88,6 +88,18 @@ std::string Server::modifyClientsVector(int socket){
     return name;
 }
 
+void Server::sendUsersList(int socket){
+    std::lock_guard<std::mutex> lock(vectorMutex);
+    for(const auto &user: clients){
+        Packet packet;
+        packet.type = P_USERS_LIST;
+        packet.data = const_cast<char*>(user.username.c_str());
+        packet.size = sizeof(user.username.length());
+        if(!sendPacket(socket, packet)) std::cout<<"error sending packet\n";
+    }
+    sendPacketUni(socket, P_USERS_LIST_END);
+}
+
 void Server::handleClient(int clientSocket) {
     logInUser(clientSocket);
     
@@ -151,6 +163,9 @@ void Server::handleClient(int clientSocket) {
             std::string username = modifyClientsVector(clientSocket);
             updateUserStatus(username, 0);
             sendPacketUni(clientSocket, P_LOGOUT_CONFIRM);
+        }
+        if(receivedPacket.type==P_REQUEST_USERS_LIST){
+            sendUsersList(clientSocket);
         }
     }
     close(clientSocket);

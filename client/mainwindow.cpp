@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->logInButton, &QPushButton::clicked, this, &MainWindow::loginUser);
     connect(ui->signUpButton, &QPushButton::clicked, this, &MainWindow::signUpUser);
     connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::logOutUser);
+
 }
 
 MainWindow::~MainWindow()
@@ -47,6 +48,7 @@ void MainWindow::receivePacket(){
                 password = true;
                 ui->infoBox->setText("Signed up and logged in succesfully.");
                 changeLoginSection(false);
+                requestUsersList();
             }
             if(packet.type == P_USER_ALREADY_LOGGED_IN){
                 loginExists = false;
@@ -59,6 +61,7 @@ void MainWindow::receivePacket(){
                 password = true;
                 ui->infoBox->setText("Logged in succesfully.");
                 changeLoginSection(false);
+                requestUsersList();
             }
             if(packet.type == P_WRONG_PASSWORD){
                 loginExists = true;
@@ -71,6 +74,12 @@ void MainWindow::receivePacket(){
                 password = false;
                 ui->infoBox->setText("Logged out.");
                 changeLoginSection(true);
+            }
+            if(packet.type == P_USERS_LIST){
+                users.push_back(QString(packet.data));
+            }
+            if(packet.type == P_USERS_LIST_END){
+                displayUsersList();
             }
             receivedData.remove(0, 1024);
         }

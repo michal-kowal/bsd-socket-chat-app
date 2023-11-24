@@ -15,7 +15,10 @@ enum packetType{
     P_LOGIN_SUCCES,
     P_WRONG_PASSWORD,
     P_LOGOUT_REQUEST,
-    P_LOGOUT_CONFIRM
+    P_LOGOUT_CONFIRM,
+    P_REQUEST_USERS_LIST,
+    P_USERS_LIST,
+    P_USERS_LIST_END
 };
 
 struct Packet{

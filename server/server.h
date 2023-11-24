@@ -38,6 +38,8 @@ public:
 
     std::string modifyClientsVector(int socket);
 
+    void sendUsersList(int socket);
+
     bool sendPacket(int socket, Packet &packet);
     bool receivePacket(int socket, Packet &packet);
     void deletePacket(Packet &packet);

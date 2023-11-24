@@ -5,6 +5,7 @@
 #include <iostream>
 #include <QTcpSocket>
 #include <QByteArray>
+#include <QListWidget>
 #include <string>
 #include <sstream>
 #include <cstring>
@@ -32,6 +33,8 @@ protected:
     bool password;
     int decide; //0-signup 1-login
     bool status;
+    std::vector<QString> users;
+
     void connection();
     void changeLoginSection(bool val);
     void socketConnected();
@@ -47,6 +50,9 @@ protected:
     void sendPassword(QString password);
     void sendLoginToLogin(QString login);
     void sendPasswordToLogin(QString password);
+
+    void requestUsersList();
+    void displayUsersList();
 private:
     Ui::MainWindow *ui;
 };
