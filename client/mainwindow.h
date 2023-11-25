@@ -6,6 +6,8 @@
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QListWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 #include <string>
 #include <sstream>
 #include <cstring>

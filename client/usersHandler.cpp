@@ -11,7 +11,8 @@ void MainWindow::requestUsersList(){
 void MainWindow::displayUsersList(){
     QListWidget* listWidget = new QListWidget();
     for(const auto &user: users){
-        listWidget->addItem(user);
+        if(user != ui->loginLineEdit->text())
+            listWidget->addItem(user);
     }
     QHBoxLayout* layout = ui->usersList;
     layout->addWidget(listWidget);
