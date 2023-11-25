@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->refreshButton->setVisible(false);
 
     loginExists = false;
     password = false;
@@ -15,8 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->logInButton, &QPushButton::clicked, this, &MainWindow::loginUser);
     connect(ui->signUpButton, &QPushButton::clicked, this, &MainWindow::signUpUser);
     connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::logOutUser);
-//    QVBoxLayout* loginPanel = ui->verticalLayout;
-//    loginPanel->SetMa);
+    connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::refreshUsersList);
 }
 
 MainWindow::~MainWindow()
@@ -74,6 +74,7 @@ void MainWindow::receivePacket(){
                 loginExists = false;
                 password = false;
                 ui->infoBox->setText("Logged out.");
+                users.clear();
                 changeLoginSection(true);
             }
             if(packet.type == P_USERS_LIST){

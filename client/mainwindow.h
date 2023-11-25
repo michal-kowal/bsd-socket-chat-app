@@ -55,6 +55,7 @@ protected:
 
     void requestUsersList();
     void displayUsersList();
+    void refreshUsersList();
 private:
     Ui::MainWindow *ui;
 };

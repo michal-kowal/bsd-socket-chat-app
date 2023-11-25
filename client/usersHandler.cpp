@@ -9,11 +9,23 @@ void MainWindow::requestUsersList(){
 }
 
 void MainWindow::displayUsersList(){
+    QHBoxLayout* layout = ui->usersList;
+    QLayoutItem *child;
+    while ((child = layout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
+
     QListWidget* listWidget = new QListWidget();
     for(const auto &user: users){
         if(user != ui->loginLineEdit->text())
             listWidget->addItem(user);
     }
-    QHBoxLayout* layout = ui->usersList;
+
     layout->addWidget(listWidget);
+}
+
+void MainWindow::refreshUsersList(){
+    users.clear();
+    requestUsersList();
 }

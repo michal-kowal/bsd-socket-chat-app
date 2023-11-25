@@ -92,4 +92,6 @@ void MainWindow::changeLoginSection(bool val){
     ui->logInButton->setEnabled(val);
     ui->signUpButton->setEnabled(val);
     ui->logoutButton->setEnabled(!val);
+    ui->refreshButton->setEnabled(!val);
+    ui->refreshButton->setVisible(!val);
 }
