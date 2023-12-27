@@ -17,6 +17,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->signUpButton, &QPushButton::clicked, this, &MainWindow::signUpUser);
     connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::logOutUser);
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::refreshUsersList);
+    ui->UsersOnline->setVisible(false);
+    ui->ActiveChatName->setVisible(false);
+    ui->ChatWith->setVisible(false);
+    ui->messageTextEdit->setVisible(false);
+    ui->sendButton->setVisible(false);
+    ui->closeChatButton->setVisible(false);
 }
 
 MainWindow::~MainWindow()

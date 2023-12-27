@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,7,1">
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,0,7,1">
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="sizeConstraint">
@@ -290,6 +290,60 @@
      </spacer>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="InfoLayout" stretch="1,0,5,0,1">
+      <item>
+       <widget class="QLabel" name="UsersOnline">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Online users:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_15">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="ChatWith">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_14">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="ActiveChatName">
+        <property name="text">
+         <string>Active chats:</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,0,4,0,1">
       <item>
        <layout class="QHBoxLayout" name="usersList"/>
@@ -332,7 +386,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,1,5,1,1,1">
       <item>
        <widget class="QPushButton" name="refreshButton">
         <property name="enabled">
@@ -340,6 +394,29 @@
         </property>
         <property name="text">
          <string>Refresh</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_16">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="messageTextEdit"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sendButton">
+        <property name="text">
+         <string>Send</string>
         </property>
        </widget>
       </item>
@@ -355,6 +432,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="closeChatButton">
+        <property name="text">
+         <string>Delete Chat</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

@@ -94,4 +94,10 @@ void MainWindow::changeLoginSection(bool val){
     ui->logoutButton->setEnabled(!val);
     ui->refreshButton->setEnabled(!val);
     ui->refreshButton->setVisible(!val);
+    ui->UsersOnline->setVisible(!val);
+    ui->ActiveChatName->setVisible(!val);
+    ui->ChatWith->setVisible(!val);
+    ui->messageTextEdit->setVisible(!val);
+    ui->sendButton->setVisible(!val);
+    ui->closeChatButton->setVisible(!val);
 }
