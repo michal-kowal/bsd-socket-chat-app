@@ -20,10 +20,9 @@ void MainWindow::displayUsersList(){
 
     // Połączenie sygnału itemDoubleClicked z odpowiednim slotem
     connect(listWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::onUserItemDoubleClicked);
-
     for(const auto &user: users){
+        qDebug() << ui->loginLineEdit->text() << user;
         if(user != ui->loginLineEdit->text())
-            qDebug() << ui->loginLineEdit->text() << user;
             listWidget->addItem(user);
     }
 
