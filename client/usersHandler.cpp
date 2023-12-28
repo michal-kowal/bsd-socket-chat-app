@@ -17,12 +17,27 @@ void MainWindow::displayUsersList(){
     }
 
     QListWidget* listWidget = new QListWidget();
+
+    // Połączenie sygnału itemDoubleClicked z odpowiednim slotem
+    connect(listWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::onUserItemDoubleClicked);
+
     for(const auto &user: users){
         if(user != ui->loginLineEdit->text())
+            qDebug() << ui->loginLineEdit->text() << user;
             listWidget->addItem(user);
     }
 
     layout->addWidget(listWidget);
+}
+
+void MainWindow::onUserItemDoubleClicked(QListWidgetItem *item) {
+    QString selectedUser = item->text();
+    qDebug() << "Podwójne kliknięcie na użytkowniku: " << selectedUser;
+    Packet packet;
+    packet.type = P_USERS_NEW_CHAT;
+    packet.size = selectedUser.length();
+    packet.data = const_cast<char*>(selectedUser.toStdString().c_str());
+    sendData(*socket, packet);
 }
 
 void MainWindow::refreshUsersList(){

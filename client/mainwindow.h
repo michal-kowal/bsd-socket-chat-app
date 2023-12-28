@@ -7,6 +7,8 @@
 #include <QByteArray>
 #include <QListWidget>
 #include <QVBoxLayout>
+#include <QMessageBox>
+#include <QString>
 #include <QWidget>
 #include <string>
 #include <sstream>
@@ -35,7 +37,9 @@ protected:
     bool password;
     int decide; //0-signup 1-login
     bool status;
+    Chat activeChat;
     std::vector<QString> users;
+    std::vector<Chat> activeChats;
 
     void connection();
     void changeLoginSection(bool val);
@@ -52,10 +56,18 @@ protected:
     void sendPassword(QString password);
     void sendLoginToLogin(QString login);
     void sendPasswordToLogin(QString password);
-
+    void onUserItemDoubleClicked(QListWidgetItem *item);
     void requestUsersList();
     void displayUsersList();
     void refreshUsersList();
+    void newConnectionDisplay(QString data);
+    void ack(QString data, enum packetType type);
+    void displayActiveChats();
+
+    void displayMessages(QListWidgetItem *item);
+    void presentMessages(std::vector<Message> mess);
+
+    void sendMessage();
 private:
     Ui::MainWindow *ui;
 };

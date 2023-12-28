@@ -100,4 +100,17 @@ void MainWindow::changeLoginSection(bool val){
     ui->messageTextEdit->setVisible(!val);
     ui->sendButton->setVisible(!val);
     ui->closeChatButton->setVisible(!val);
+    ui->chatTextBrowser->setVisible(!val);
+    QHBoxLayout* layout = ui->usersList;
+    QLayoutItem *child;
+    while ((child = layout->takeAt(0)) != nullptr) {
+        delete child->widget();
+        delete child;
+    }
+    QHBoxLayout* layout1 = ui->activeChats;
+    QLayoutItem *child1;
+    while ((child1 = layout1->takeAt(0)) != nullptr) {
+        delete child1->widget();
+        delete child1;
+    }
 }

@@ -100,6 +100,42 @@ void Server::sendUsersList(int socket){
     sendPacketUni(socket, P_USERS_LIST_END);
 }
 
+std::string Server::findUserByFd(int fd){
+    for(const auto &user: clients){
+        if(user.fd==fd){
+            return user.username;
+        }
+    }
+    return "not found";
+}
+
+int Server::findUserByName(std::string name){
+    for(const auto &user: clients){
+        if(user.username==name){
+            return user.fd;
+        }
+    }
+    return 0;
+}
+
+void Server::createChat(int source, int dest){ //fd1 source; fd2 - destination
+    Packet packet;
+    std::string name = findUserByFd(source);
+    packet.type = P_NEW_CHAT_REQUEST;
+    packet.data = const_cast<char*>(name.c_str());
+    packet.size = sizeof(name.length());
+    if(!sendPacket(dest, packet)) std::cout<<"error sending packet\n";
+}
+
+void Server::sendAck(int source, int dest, enum packetType type){
+    Packet packet;
+    std::string name = findUserByFd(source);
+    packet.type = type;
+    packet.data = const_cast<char*>(name.c_str());
+    packet.size = sizeof(name.length());
+    if(!sendPacket(dest, packet)) std::cout<<"error sending packet\n";
+}
+
 void Server::handleClient(int clientSocket) {
     logInUser(clientSocket);
     
@@ -108,6 +144,7 @@ void Server::handleClient(int clientSocket) {
     while (true) {
         Packet receivedPacket;
         bool received = receivePacket(clientSocket, receivedPacket);
+        Message mess;
         if(!received) break;
 
         if(receivedPacket.type==P_ASK_LOGIN_USER){
@@ -166,6 +203,27 @@ void Server::handleClient(int clientSocket) {
         }
         if(receivedPacket.type==P_REQUEST_USERS_LIST){
             sendUsersList(clientSocket);
+        }
+        if(receivedPacket.type==P_USERS_NEW_CHAT){
+            std::cout<<"Klient: "<<clientSocket<<" żąda połączenia do: " <<receivedPacket.data<<std::endl;
+            int dest = findUserByName(receivedPacket.data);
+            createChat(clientSocket, dest);
+        }
+        if(receivedPacket.type==P_YES){
+            int dest = findUserByName(receivedPacket.data);
+            sendAck(clientSocket, dest, P_YES);
+        }
+        if(receivedPacket.type==P_NO){
+            int dest = findUserByName(receivedPacket.data);
+            sendAck(clientSocket, dest, P_NO);
+        }
+        if(receivedPacket.type==P_MESSAGE_DEST){
+            mess.receiver = findUserByName(receivedPacket.data);
+            mess.sender = findUserByFd(clientSocket);
+        }
+        if(receivedPacket.type==P_MESSAGE_TEXT){
+            mess.text = receivedPacket.data;
+            std::cout<<"Message from: "<<mess.sender<<" To: "<<mess.receiver<<" text: "<<mess.text<<std::endl;
         }
     }
     close(clientSocket);

@@ -20,13 +20,25 @@ enum packetType{
     P_LOGOUT_CONFIRM,
     P_REQUEST_USERS_LIST,
     P_USERS_LIST,
-    P_USERS_LIST_END
+    P_USERS_LIST_END,
+    P_USERS_NEW_CHAT,
+    P_NEW_CHAT_REQUEST,
+    P_YES,
+    P_NO,
+    P_MESSAGE_DEST,
+    P_MESSAGE_TEXT,
 };
 
 struct Packet{
     packetType type;
     int size;
     char* data;
+};
+
+struct Message{
+    std::string sender;
+    int receiver;
+    std::string text;
 };
 
 struct Client{

@@ -1,6 +1,8 @@
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
+#include <QString>
+
 enum packetType{
     P_LOGIN_USER,
     P_ASK_LOGIN_USER,
@@ -18,7 +20,24 @@ enum packetType{
     P_LOGOUT_CONFIRM,
     P_REQUEST_USERS_LIST,
     P_USERS_LIST,
-    P_USERS_LIST_END
+    P_USERS_LIST_END,
+    P_USERS_NEW_CHAT,
+    P_NEW_CHAT_REQUEST,
+    P_YES,
+    P_NO,
+    P_MESSAGE_DEST,
+    P_MESSAGE_TEXT
+};
+
+struct Message{
+    QString sender;
+    QString receiver;
+    QString text;
+};
+
+struct Chat{
+    QString receiver;
+    std::vector<Message> messages;
 };
 
 struct Packet{

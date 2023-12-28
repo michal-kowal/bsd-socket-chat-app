@@ -17,12 +17,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->signUpButton, &QPushButton::clicked, this, &MainWindow::signUpUser);
     connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::logOutUser);
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::refreshUsersList);
+    connect(ui->sendButton, &QPushButton::clicked, this, &MainWindow::sendMessage);
     ui->UsersOnline->setVisible(false);
     ui->ActiveChatName->setVisible(false);
     ui->ChatWith->setVisible(false);
     ui->messageTextEdit->setVisible(false);
     ui->sendButton->setVisible(false);
     ui->closeChatButton->setVisible(false);
+    ui->chatTextBrowser->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -88,6 +90,13 @@ void MainWindow::receivePacket(){
             }
             if(packet.type == P_USERS_LIST_END){
                 displayUsersList();
+                displayActiveChats();
+            }
+            if(packet.type == P_NEW_CHAT_REQUEST){
+                newConnectionDisplay(QString(packet.data));
+            }
+            if(packet.type == P_YES || packet.type == P_NO){
+                ack(QString(packet.data), packet.type);
             }
             receivedData.remove(0, 1024);
         }

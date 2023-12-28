@@ -40,6 +40,13 @@ public:
 
     void sendUsersList(int socket);
 
+    std::string findUserByFd(int fd);
+    int findUserByName(std::string name);
+
+    void createChat(int source, int dest);
+
+    void sendAck(int source, int dest, enum packetType type);
+
     bool sendPacket(int socket, Packet &packet);
     bool receivePacket(int socket, Packet &packet);
     void deletePacket(Packet &packet);
