@@ -37,9 +37,9 @@ protected:
     bool password;
     int decide; //0-signup 1-login
     bool status;
-    Chat activeChat;
+    Chat* activeChat;
     std::vector<QString> users;
-    std::vector<Chat> activeChats;
+    std::vector<Chat*> activeChats;
 
     void connection();
     void changeLoginSection(bool val);
@@ -66,6 +66,7 @@ protected:
 
     void displayMessages(QListWidgetItem *item);
     void presentMessages(std::vector<Message> mess);
+    void receiveMessage(const char* mess);
 
     void sendMessage();
 private:

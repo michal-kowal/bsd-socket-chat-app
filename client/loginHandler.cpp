@@ -12,7 +12,7 @@ void MainWindow::checkLoginUser(){
     Packet packet;
     QString login = ui->loginLineEdit->text();
     packet.type = P_ASK_LOGIN_USER;
-    packet.size = login.length();
+    packet.size = sizeof(login.length());
     packet.data = const_cast<char*>(login.toStdString().c_str());
     sendData(*socket, packet);
 }
@@ -20,7 +20,7 @@ void MainWindow::checkLoginUser(){
 void MainWindow::sendLogin(QString login){
     Packet packet;
     packet.type = P_SEND_LOGIN;
-    packet.size = login.length();
+    packet.size = sizeof(login.length());
     packet.data = const_cast<char*>(login.toStdString().c_str());
     sendData(*socket, packet);
 }
@@ -28,7 +28,7 @@ void MainWindow::sendLogin(QString login){
 void MainWindow::sendPassword(QString password){
     Packet packet;
     packet.type = P_SEND_PASSWORD;
-    packet.size = password.length();
+    packet.size = sizeof(password.length());
     packet.data = const_cast<char*>(password.toStdString().c_str());
     sendData(*socket, packet);
 }
@@ -41,7 +41,7 @@ void MainWindow::signUpUser(){
 void MainWindow::sendLoginToLogin(QString login){
     Packet packet;
     packet.type = P_SEND_LOGIN_LOG;
-    packet.size = login.length();
+    packet.size = sizeof(login.length());
     packet.data = const_cast<char*>(login.toStdString().c_str());
     sendData(*socket, packet);
 }
@@ -49,7 +49,7 @@ void MainWindow::sendLoginToLogin(QString login){
 void MainWindow::sendPasswordToLogin(QString password){
     Packet packet;
     packet.type = P_SEND_PASSWORD_LOG;
-    packet.size = password.length();
+    packet.size = sizeof(password.length());
     packet.data = const_cast<char*>(password.toStdString().c_str());
     sendData(*socket, packet);
 }

@@ -98,6 +98,9 @@ void MainWindow::receivePacket(){
             if(packet.type == P_YES || packet.type == P_NO){
                 ack(QString(packet.data), packet.type);
             }
+            if(packet.type == P_MESSAGE_SEND){
+                receiveMessage(packet.data);
+            }
             receivedData.remove(0, 1024);
         }
     }

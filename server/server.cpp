@@ -136,15 +136,30 @@ void Server::sendAck(int source, int dest, enum packetType type){
     if(!sendPacket(dest, packet)) std::cout<<"error sending packet\n";
 }
 
+void Server::sendMessage(Message mess){
+    std::stringstream stream;
+    stream << mess.sender << " " << mess.text;
+    std::string result = stream.str();
+
+    Packet packet;
+    packet.type=P_MESSAGE_SEND;
+    packet.size = result.length();
+    packet.data = new char[packet.size + 1];
+    memcpy(packet.data, result.c_str(), packet.size);
+    packet.data[packet.size] = '\0';
+
+    if(!sendPacket(mess.receiver, packet)) std::cout<<"error sending packet\n";
+    delete[] packet.data;
+}
+
 void Server::handleClient(int clientSocket) {
     logInUser(clientSocket);
     
     Client newClient;
-
+    Message mess;
     while (true) {
         Packet receivedPacket;
         bool received = receivePacket(clientSocket, receivedPacket);
-        Message mess;
         if(!received) break;
 
         if(receivedPacket.type==P_ASK_LOGIN_USER){
@@ -205,7 +220,6 @@ void Server::handleClient(int clientSocket) {
             sendUsersList(clientSocket);
         }
         if(receivedPacket.type==P_USERS_NEW_CHAT){
-            std::cout<<"Klient: "<<clientSocket<<" żąda połączenia do: " <<receivedPacket.data<<std::endl;
             int dest = findUserByName(receivedPacket.data);
             createChat(clientSocket, dest);
         }
@@ -224,6 +238,7 @@ void Server::handleClient(int clientSocket) {
         if(receivedPacket.type==P_MESSAGE_TEXT){
             mess.text = receivedPacket.data;
             std::cout<<"Message from: "<<mess.sender<<" To: "<<mess.receiver<<" text: "<<mess.text<<std::endl;
+            sendMessage(mess);
         }
     }
     close(clientSocket);

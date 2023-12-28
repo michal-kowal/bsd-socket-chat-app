@@ -46,6 +46,7 @@ public:
     void createChat(int source, int dest);
 
     void sendAck(int source, int dest, enum packetType type);
+    void sendMessage(Message mess);
 
     bool sendPacket(int socket, Packet &packet);
     bool receivePacket(int socket, Packet &packet);
