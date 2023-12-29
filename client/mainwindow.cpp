@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::logOutUser);
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::refreshUsersList);
     connect(ui->sendButton, &QPushButton::clicked, this, &MainWindow::sendMessage);
+    connect(ui->closeChatButton, &QPushButton::clicked, this, &MainWindow::deleteChat);
     ui->UsersOnline->setVisible(false);
     ui->ActiveChatName->setVisible(false);
     ui->ChatWith->setVisible(false);
@@ -94,12 +95,24 @@ void MainWindow::receivePacket(){
             }
             if(packet.type == P_NEW_CHAT_REQUEST){
                 newConnectionDisplay(QString(packet.data));
+                refreshUsersList();
             }
             if(packet.type == P_YES || packet.type == P_NO){
                 ack(QString(packet.data), packet.type);
             }
             if(packet.type == P_MESSAGE_SEND){
                 receiveMessage(packet.data);
+            }
+            if(packet.type == P_CLOSE_CHAT){
+                performDelete(QString(packet.data), 0);
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Information");
+                msgBox.setStandardButtons(QMessageBox::Ok);
+                msgBox.setDefaultButton(QMessageBox::Ok);
+                msgBox.setText(QString("User %1 decided to close the chat.").arg(QString(packet.data)));
+                displayActiveChats();
+                msgBox.exec();
+                refreshUsersList();
             }
             receivedData.remove(0, 1024);
         }

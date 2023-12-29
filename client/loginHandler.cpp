@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 
 void MainWindow::logOutUser(){
+    for(auto &chat: activeChats){
+        performDelete(QString(chat->receiver), 1);
+    }
     Packet packet;
     packet.type = P_LOGOUT_REQUEST;
     packet.size = 0;

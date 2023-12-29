@@ -27,7 +27,8 @@ enum packetType{
     P_NO,
     P_MESSAGE_DEST,
     P_MESSAGE_TEXT,
-    P_MESSAGE_SEND
+    P_MESSAGE_SEND,
+    P_CLOSE_CHAT
 };
 
 struct Message{

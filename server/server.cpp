@@ -60,13 +60,7 @@ void Server::runServer(){
 }
 
 void Server::logInUser(int clientSocket){
-    Packet packet, receivedPacket;
-    std::string test = "testowa wiadomosc";
-    packet.type=P_LOGIN_USER;
-    packet.data=const_cast<char*>(test.c_str());
-    packet.size = sizeof(test.length());
-    if(!sendPacket(clientSocket, packet)) std::cout<<"error sending packet P_LOGIN_USER\n";
-    // deletePacket(packet);
+    sendPacketUni(clientSocket, P_LOGIN_USER);
 }
 
 void Server::sendPacketUni(int clientSocket, enum packetType type){
@@ -150,6 +144,14 @@ void Server::sendMessage(Message mess){
 
     if(!sendPacket(mess.receiver, packet)) std::cout<<"error sending packet\n";
     delete[] packet.data;
+}
+
+void Server::closeChat(int dest, std::string toClose){
+    Packet packet;
+    packet.type=P_CLOSE_CHAT;
+    packet.size=sizeof(toClose.length());
+    packet.data = const_cast<char*>(toClose.c_str());
+    if(!sendPacket(dest, packet)) std::cout<<"error sending packet\n";
 }
 
 void Server::handleClient(int clientSocket) {
@@ -239,6 +241,11 @@ void Server::handleClient(int clientSocket) {
             mess.text = receivedPacket.data;
             std::cout<<"Message from: "<<mess.sender<<" To: "<<mess.receiver<<" text: "<<mess.text<<std::endl;
             sendMessage(mess);
+        }
+        if(receivedPacket.type==P_CLOSE_CHAT){
+            int dest = findUserByName(receivedPacket.data);
+            std::string toClose = findUserByFd(clientSocket);
+            closeChat(dest, toClose);
         }
     }
     close(clientSocket);

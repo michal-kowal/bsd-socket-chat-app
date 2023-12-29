@@ -28,12 +28,21 @@ void MainWindow::displayUsersList(){
 }
 
 void MainWindow::onUserItemDoubleClicked(QListWidgetItem *item) {
+    bool check = true;
     QString selectedUser = item->text();
-    Packet packet;
-    packet.type = P_USERS_NEW_CHAT;
-    packet.size = sizeof(selectedUser.length());
-    packet.data = const_cast<char*>(selectedUser.toStdString().c_str());
-    sendData(*socket, packet);
+    for(auto &chat: activeChats){
+        if(chat->receiver==selectedUser){
+            check = false;
+            break;
+        }
+    }
+    if(check){
+        Packet packet;
+        packet.type = P_USERS_NEW_CHAT;
+        packet.size = sizeof(selectedUser.length());
+        packet.data = const_cast<char*>(selectedUser.toStdString().c_str());
+        sendData(*socket, packet);
+    }
 }
 
 void MainWindow::refreshUsersList(){

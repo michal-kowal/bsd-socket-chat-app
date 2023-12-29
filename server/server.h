@@ -48,6 +48,8 @@ public:
     void sendAck(int source, int dest, enum packetType type);
     void sendMessage(Message mess);
 
+    void closeChat(int dest, std::string toClose);
+
     bool sendPacket(int socket, Packet &packet);
     bool receivePacket(int socket, Packet &packet);
     void deletePacket(Packet &packet);

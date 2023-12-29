@@ -86,31 +86,34 @@ void MainWindow::displayMessages(QListWidgetItem *item){
             break;
         }
     }
+    ui->closeChatButton->setEnabled(true);
     ui->sendButton->setEnabled(true);
 }
 
 void MainWindow::sendMessage(){
     QString message = ui->messageTextEdit->toPlainText();
-    Message m;
-    m.sender = ui->loginLineEdit->text();
-    m.text = message;
-    activeChat->messages.push_back(m);
-    Packet packet;
-    packet.type = P_MESSAGE_DEST;
-    packet.size = sizeof(activeChat->receiver.length());
-    packet.data = const_cast<char*>(activeChat->receiver.toStdString().c_str());
-    sendData(*socket, packet);
+    if(message.length()>0){
+        Message m;
+        m.sender = ui->loginLineEdit->text();
+        m.text = message;
+        activeChat->messages.push_back(m);
+        Packet packet;
+        packet.type = P_MESSAGE_DEST;
+        packet.size = sizeof(activeChat->receiver.length());
+        packet.data = const_cast<char*>(activeChat->receiver.toStdString().c_str());
+        sendData(*socket, packet);
 
-    Packet packet1;
-    packet1.type = P_MESSAGE_TEXT;
-    QByteArray byteArray = message.toUtf8();
-    packet1.size = byteArray.size();
-    packet1.data = new char[packet1.size];
-    memcpy(packet1.data, byteArray.constData(), packet1.size);
-    sendData(*socket, packet1);
-    delete[] packet1.data;
-    ui->messageTextEdit->clear();
-    presentMessages(activeChat->messages);
+        Packet packet1;
+        packet1.type = P_MESSAGE_TEXT;
+        QByteArray byteArray = message.toUtf8();
+        packet1.size = byteArray.size();
+        packet1.data = new char[packet1.size];
+        memcpy(packet1.data, byteArray.constData(), packet1.size);
+        sendData(*socket, packet1);
+        delete[] packet1.data;
+        ui->messageTextEdit->clear();
+        presentMessages(activeChat->messages);
+    }
 }
 
 void MainWindow::receiveMessage(const char *mess){
@@ -121,6 +124,7 @@ void MainWindow::receiveMessage(const char *mess){
     std::getline(stream, text);
     message.sender = QString::fromStdString(sender);
     message.text = QString::fromStdString(text);
+    qDebug() << "Message from: " <<message.sender<< " text: " << message.text;
     ui->infoBox->setText(QString("<font color='darkred'>New message from %1</font>").arg(message.sender));
     if(activeChat && activeChat->receiver==message.sender){
         activeChat->messages.push_back(message);
@@ -131,6 +135,55 @@ void MainWindow::receiveMessage(const char *mess){
             if(chat->receiver == message.sender){
                 chat->messages.push_back(message);
             }
+        }
+    }
+}
+
+void MainWindow::performDelete(QString name, int check){
+    if(activeChat && activeChat->receiver==name){
+        activeChat=nullptr;
+        ui->sendButton->setEnabled(false);
+        ui->chatTextBrowser->clear();
+    }
+    for (int i = 0; i < activeChats.size(); i++) {
+        if (activeChats[i]->receiver == name) {
+            delete activeChats[i];
+            activeChats.erase(activeChats.begin() + i);
+            if(check == 1){
+                Packet packet;
+                packet.type = P_CLOSE_CHAT;
+                packet.size = sizeof(name.length());
+                packet.data = const_cast<char*>(name.toStdString().c_str());
+                sendData(*socket, packet);
+            }
+            break;
+        }
+    }
+}
+
+void MainWindow::deleteChat(){
+    QLayoutItem* layoutItem = ui->activeChats->itemAt(0);
+
+    if (layoutItem) {
+        QWidget* widget = layoutItem->widget();
+
+        if (widget && widget->metaObject()->className() == QLatin1String("QListWidget")) {
+            QListWidget* listWidget = qobject_cast<QListWidget*>(widget);
+
+            if (listWidget->selectedItems().isEmpty()) {
+                qDebug() << "No item selected.";
+                return;
+            }
+
+            QListWidgetItem* selectedItem = listWidget->currentItem();
+            QString selectedText = selectedItem->text();
+
+            // Tutaj możesz wykorzystać 'selectedText' lub zrobić cokolwiek innego z zaznaczonym elementem
+            qDebug() << "Selected item: " << selectedText;
+            performDelete(selectedText, 1);
+
+            // Wyczyść wybrany element z listy
+            delete listWidget->takeItem(listWidget->row(selectedItem));
         }
     }
 }

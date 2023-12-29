@@ -68,6 +68,9 @@ protected:
     void presentMessages(std::vector<Message> mess);
     void receiveMessage(const char* mess);
 
+    void deleteChat();
+    void performDelete(QString name, int check);
+
     void sendMessage();
 private:
     Ui::MainWindow *ui;
