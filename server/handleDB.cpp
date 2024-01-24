@@ -28,7 +28,7 @@ void Server::insertUserToDb(std::string username, std::string password) {
         std::cerr << "Error inserting user into database: " << messageError << std::endl;
         sqlite3_free(messageError);
     } else {
-        std::cout << "User" <<username<<" inserted successfully" << std::endl;
+        std::cout << "User " <<username<<" inserted successfully" << std::endl;
     }
 }
 

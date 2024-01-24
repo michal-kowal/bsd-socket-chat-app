@@ -39,7 +39,7 @@ bool Server::receivePacket(int socket, Packet &packet){
             if (readBytes == 0) {
                 std::string username = modifyClientsVector(socket);
                 updateUserStatus(username, 0);
-                std::cout << "Connection closed by client." << std::endl;
+                std::cout << "Connection closed by client: "<< username << std::endl;
             } else {
                 std::cerr << "Error reading from client." << std::endl;
             }

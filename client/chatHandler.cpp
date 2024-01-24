@@ -178,11 +178,9 @@ void MainWindow::deleteChat(){
             QListWidgetItem* selectedItem = listWidget->currentItem();
             QString selectedText = selectedItem->text();
 
-            // Tutaj możesz wykorzystać 'selectedText' lub zrobić cokolwiek innego z zaznaczonym elementem
             qDebug() << "Selected item: " << selectedText;
             performDelete(selectedText, 1);
 
-            // Wyczyść wybrany element z listy
             delete listWidget->takeItem(listWidget->row(selectedItem));
         }
     }

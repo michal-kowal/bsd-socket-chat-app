@@ -37,7 +37,7 @@ void Server::runServer(){
     if (bind(servSock, (sockaddr*) &localAdress, sizeof(localAdress)))
         error(1, errno, "Could not bind!");
 
-    listen(servSock, 5); // Adjust the backlog to the desired value
+    listen(servSock, 5);
 
     // std::vector<std::thread> clientThreads;
 
@@ -50,10 +50,8 @@ void Server::runServer(){
 
         std::cout << "Connection accepted from client." << std::endl;
 
-        // Start a new thread to handle the client
         std::thread clientThread(&Server::handleClient, this, ackSock);
-        clientThread.detach();  // Allow the thread to run independently
-
+        clientThread.detach();
     }
 
     close(servSock);
@@ -167,7 +165,7 @@ void Server::handleClient(int clientSocket) {
         if(receivedPacket.type==P_ASK_LOGIN_USER){
             std::string login = receivedPacket.data;
             if(!checkUserInDb(login)){
-                std::cout<<"nie istnieje\n"<<std::endl;
+                std::cout<<"uzytkownik nie istnieje\n"<<std::endl;
                 sendPacketUni(clientSocket, P_USER_NOT_EXIST);
             }else{
                 sendPacketUni(clientSocket, P_USER_EXIST);
@@ -239,7 +237,6 @@ void Server::handleClient(int clientSocket) {
         }
         if(receivedPacket.type==P_MESSAGE_TEXT){
             mess.text = receivedPacket.data;
-            std::cout<<"Message from: "<<mess.sender<<" To: "<<mess.receiver<<" text: "<<mess.text<<std::endl;
             sendMessage(mess);
         }
         if(receivedPacket.type==P_CLOSE_CHAT){
