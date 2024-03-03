@@ -25,8 +25,12 @@ Program klienta to aplikacja okienkowa napisana również w języku C++ z wykorz
 
 Po nawiązaniu połączenia, użytkownik musi wprowadzić login i hasło, a następnie zalogować się lub zarejestrować. Informacje o rezultatach tych działań są wyświetlane w oknie informacyjnym. Program wyświetla listę dostępnych użytkowników, pobierając informacje od serwera. Po zalogowaniu, lista ta jest odświeżana. Użytkownik może rozpocząć rozmowę z innym użytkownikiem, co prowadzi do wysłania żądania rozmowy do serwera.
 
+![2.png](2.png)
+
 Po nawiązaniu rozmowy, użytkownik może wysyłać wiadomości tekstowe. Możliwe jest prowadzenie wielu konwersacji jednocześnie. Informacje o nowych wiadomościach wyświetlają się na czerwono w polu informacyjnym. Użytkownik może zakończyć rozmowę, co skutkuje wysłaniem informacji o zamknięciu rozmowy do serwera i aktualizacją listy aktywnych rozmów. Taką informację otrzymuje także odbiorca naszych wiadomości. Użytkownik ma także możliwość wylogowania się. Po zamknięciu programu lub rozłączeniu z serwerem, odpowiednie akcje są wykonywane, takie jak zamknięcie gniazda i wylogowanie z serwera.
 &nbsp Niektóre przyciski są niedostępne w trakcie określonych momentów działania programu tak, aby zapobiec sytuacjom takim, jak np. żądanie ponownego zalogowania bez wcześniejszego wylogowania.
+
+![3.png](3.png)
 
 Aby uruchomić aplikację klienta należy skorzystać z programu Qt Creator i otworzyć plik client.pro, następnie ctrl+R.
 
