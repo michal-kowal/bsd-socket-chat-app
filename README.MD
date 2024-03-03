@@ -1,64 +1,47 @@
 1. **Cel projektu**
-
-Celem projektu było wykonanie komunikatora internetowego – aplikacji pozwalającej na komunikację między klientami w sieci. 
+&nbsp Celem projektu było wykonanie komunikatora internetowego – aplikacji pozwalającej na komunikację między klientami w sieci. 
 
 2. **Serwer**
-
-Serwer został napisany w języku C++ i wykorzystuje gniazda do tworzenia i zarządzania komunikacją między serwerem a klientami. Każde nowe połączenie powoduje utworzenie nowego wątku. Serwer inicjuje bazę danych SQLite, w której przechowywane są informacje o użytkownikach tj. login, hasło oraz ich aktualny status. Komunikacja z klientami odbywa się przy pomocy struktury Packet, która oprócz danych zawiera informacje o ich rodzaju i rozmiarze. Program używa Mutex’ów do synchronizacji dostępu do współdzielonych zasobów. 
+&nbsp Serwer został napisany w języku C++ i wykorzystuje gniazda do tworzenia i zarządzania komunikacją między serwerem a klientami. Każde nowe połączenie powoduje utworzenie nowego wątku. Serwer inicjuje bazę danych SQLite, w której przechowywane są informacje o użytkownikach tj. login, hasło oraz ich aktualny status. Komunikacja z klientami odbywa się przy pomocy struktury Packet, która oprócz danych zawiera informacje o ich rodzaju i rozmiarze. Program używa Mutex’ów do synchronizacji dostępu do współdzielonych zasobów. 
 Podstawowe obsługi błędów są implementowane przy użyciu std::cerr do wyświetlania komunikatów o błędach i wyjątków dla błędów krytycznych. Poprawnie działający serwer na wyjściu wyświetla podstawowe komunikaty np. o nowych połączeniach, operacjach w bazie danych lub wiadomościach.
 
 Instrukcja uruchomienia (podanie portu, na którym będzie działał serwer jest obowiązkowe!):
 ```
 cd server
-
 mkdir build
-
 cd build
-
 cmake ..
-
 make
-
 ./server <port>
 ```
-1. **Klient**
+3. **Klient**
+&nbsp Program klienta to aplikacja okienkowa napisana również w języku C++ z wykorzystaniem Frameworka Qt.
+&nbsp Po nawiązaniu połączenia, użytkownik musi wprowadzić login i hasło, a następnie zalogować się lub zarejestrować. Informacje o rezultatach tych działań są wyświetlane w oknie informacyjnym. Program wyświetla listę dostępnych użytkowników, pobierając informacje od serwera. Po zalogowaniu, lista ta jest odświeżana. Użytkownik może rozpocząć rozmowę z innym użytkownikiem, co prowadzi do wysłania żądania rozmowy do serwera.
 
-Program klienta to aplikacja okienkowa napisana również w języku C++ z wykorzystaniem Frameworka Qt.
+&nbsp Po nawiązaniu rozmowy, użytkownik może wysyłać wiadomości tekstowe. Możliwe jest prowadzenie wielu konwersacji jednocześnie. Informacje o nowych wiadomościach wyświetlają się na czerwono w polu informacyjnym. Użytkownik może zakończyć rozmowę, co skutkuje wysłaniem informacji o zamknięciu rozmowy do serwera i aktualizacją listy aktywnych rozmów. Taką informację otrzymuje także odbiorca naszych wiadomości. Użytkownik ma także możliwość wylogowania się. Po zamknięciu programu lub rozłączeniu z serwerem, odpowiednie akcje są wykonywane, takie jak zamknięcie gniazda i wylogowanie z serwera.
+&nbsp Niektóre przyciski są niedostępne w trakcie określonych momentów działania programu tak, aby zapobiec sytuacjom takim, jak np. żądanie ponownego zalogowania bez wcześniejszego wylogowania.
 
-Po nawiązaniu połączenia, użytkownik musi wprowadzić login i hasło, a następnie zalogować się lub zarejestrować. Informacje o rezultatach tych działań są wyświetlane w oknie informacyjnym. Program wyświetla listę dostępnych użytkowników, pobierając informacje od serwera. Po zalogowaniu, lista ta jest odświeżana. Użytkownik może rozpocząć rozmowę z innym użytkownikiem, co prowadzi do wysłania żądania rozmowy do serwera.
+&nbsp Aby uruchomić aplikację klienta należy skorzystać z programu Qt Creator i otworzyć plik client.pro, następnie ctrl+R.
 
-Po nawiązaniu rozmowy, użytkownik może wysyłać wiadomości tekstowe. Możliwe jest prowadzenie wielu konwersacji jednocześnie. Informacje o nowych wiadomościach wyświetlają się na czerwono w polu informacyjnym. Użytkownik może zakończyć rozmowę, co skutkuje wysłaniem informacji o zamknięciu rozmowy do serwera i aktualizacją listy aktywnych rozmów. Taką informację otrzymuje także odbiorca naszych wiadomości. Użytkownik ma także możliwość wylogowania się. Po zamknięciu programu lub rozłączeniu z serwerem, odpowiednie akcje są wykonywane, takie jak zamknięcie gniazda i wylogowanie z serwera.
-Niektóre przyciski są niedostępne w trakcie określonych momentów działania programu tak, aby zapobiec sytuacjom takim, jak np. żądanie ponownego zalogowania bez wcześniejszego wylogowania.
+4. **Komunikacja**
 
-Aby uruchomić aplikację klienta należy skorzystać z programu Qt Creator i otworzyć plik client.pro, następnie ctrl+R.
-
-1. **Komunikacja**
-
-Struktura przesyłanych pomiędzy klientem i serwerem pakietów:
-
+&nbsp Struktura przesyłanych pomiędzy klientem i serwerem pakietów:
+```
 struct Packet{
-
-`    `packetType type;	// typ pakietu
-
-`    `int size;		// rozmiar pakietu
-
-`    `char\* data;	// przesyłane dane
-
+packetType type;	// typ pakietu
+int size;		// rozmiar pakietu
+char* data;	// przesyłane dane
 };
-
-Struktura zawierająca wiadomość przesyłaną pomiędzy klientami:
-
+```
+&nbsp Struktura zawierająca wiadomość przesyłaną pomiędzy klientami:
+```
 struct Message{
-
-`    `std::string sender;
-
-`    `int receiver;
-
-`    `std::string text;
-
+std::string sender;
+int receiver;
+std::string text;
 };
-
-W projekcie występuje wiele typów pakietów (enum packetType). Poniższa tabela przestawia przykładowe schematy komunikacji (klient odpytuje, serwer odpowiada):
+```
+&nbsp W projekcie występuje wiele typów pakietów (enum packetType). Poniższa tabela przestawia przykładowe schematy komunikacji (klient odpytuje, serwer odpowiada):
 
 |**Klient**|**Serwer**|
 | :-: | :-: |
@@ -70,9 +53,3 @@ W projekcie występuje wiele typów pakietów (enum packetType). Poniższa tabel
 |P\_YES, P\_NO – wyraź zgodę na utworzenie czatu|P\_YES, P\_NO – przekaż zgodę do odbiorcy|
 |P\_MESSAGE\_DEST, P\_\_MESSAGE\_TEXT – prześlij dane odbiory oraz treść wiadomości|P\_MESSAGE\_SEND – wyślij wiadomość do odbiorcy|
 |P\_CLOSE\_CHAT – żądanie zakończenia czatu|P\_CLOSE\_CHAT – informuj odbiorcę o zakończeniu czatu przez nadawcę|
-
-1. **Dalszy rozwój**
-
-Nasz projekt to prosta wersja komunikatora, więc pole do rozwoju jest bardzo duże. Chcąc kontynuować projekt, należałoby pomyśleć o rozbudowie bazy danych do przechowywania historii rozmów, wprowadzić bardziej zaawansowaną autentykację użytkowników i ochronę danych. Kolejnymi funkcjonalnościami mogłyby być grupy użytkowników, przesyłanie zdjęć lub plików dźwiękowych. Warto także zwiększyć przejrzystość aplikacji klienta.
-3
-
