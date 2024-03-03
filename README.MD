@@ -1,7 +1,10 @@
 **Cel projektu**
+
 Celem projektu było wykonanie komunikatora internetowego – aplikacji pozwalającej na komunikację między klientami w sieci. 
 
+
 **Serwer**
+
 Serwer został napisany w języku C++ i wykorzystuje gniazda do tworzenia i zarządzania komunikacją między serwerem a klientami. Każde nowe połączenie powoduje utworzenie nowego wątku. Serwer inicjuje bazę danych SQLite, w której przechowywane są informacje o użytkownikach tj. login, hasło oraz ich aktualny status. Komunikacja z klientami odbywa się przy pomocy struktury Packet, która oprócz danych zawiera informacje o ich rodzaju i rozmiarze. Program używa Mutex’ów do synchronizacji dostępu do współdzielonych zasobów. 
 Podstawowe obsługi błędów są implementowane przy użyciu std::cerr do wyświetlania komunikatów o błędach i wyjątków dla błędów krytycznych. Poprawnie działający serwer na wyjściu wyświetla podstawowe komunikaty np. o nowych połączeniach, operacjach w bazie danych lub wiadomościach.
 
@@ -15,6 +18,7 @@ make
 ./server <port>
 ```
 **Klient**
+
 Program klienta to aplikacja okienkowa napisana również w języku C++ z wykorzystaniem Frameworka Qt.
 
 Po nawiązaniu połączenia, użytkownik musi wprowadzić login i hasło, a następnie zalogować się lub zarejestrować. Informacje o rezultatach tych działań są wyświetlane w oknie informacyjnym. Program wyświetla listę dostępnych użytkowników, pobierając informacje od serwera. Po zalogowaniu, lista ta jest odświeżana. Użytkownik może rozpocząć rozmowę z innym użytkownikiem, co prowadzi do wysłania żądania rozmowy do serwera.
