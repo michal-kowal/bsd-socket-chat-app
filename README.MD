@@ -2,13 +2,13 @@
 
 Celem projektu było wykonanie komunikatora internetowego – aplikacji pozwalającej na komunikację między klientami w sieci. 
 
-1. **Serwer**
+2. **Serwer**
 
 Serwer został napisany w języku C++ i wykorzystuje gniazda do tworzenia i zarządzania komunikacją między serwerem a klientami. Każde nowe połączenie powoduje utworzenie nowego wątku. Serwer inicjuje bazę danych SQLite, w której przechowywane są informacje o użytkownikach tj. login, hasło oraz ich aktualny status. Komunikacja z klientami odbywa się przy pomocy struktury Packet, która oprócz danych zawiera informacje o ich rodzaju i rozmiarze. Program używa Mutex’ów do synchronizacji dostępu do współdzielonych zasobów. 
 Podstawowe obsługi błędów są implementowane przy użyciu std::cerr do wyświetlania komunikatów o błędach i wyjątków dla błędów krytycznych. Poprawnie działający serwer na wyjściu wyświetla podstawowe komunikaty np. o nowych połączeniach, operacjach w bazie danych lub wiadomościach.
 
 Instrukcja uruchomienia (podanie portu, na którym będzie działał serwer jest obowiązkowe!):
-``
+```
 cd server
 
 mkdir build
@@ -20,7 +20,7 @@ cmake ..
 make
 
 ./server <port>
-``
+```
 1. **Klient**
 
 Program klienta to aplikacja okienkowa napisana również w języku C++ z wykorzystaniem Frameworka Qt.
